@@ -19,6 +19,7 @@ setup:
 
 dependencies:
 	$(GOCMD) get $(PROJECT)
+	# make setup ????
 
 test:
 	$(GOCMD) test $(PROJECT)
