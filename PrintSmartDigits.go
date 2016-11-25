@@ -25,7 +25,7 @@ func PrintSmartDigits(a *Alarm) {
 		"time": a.Time.UTC().Format(time.RFC3339Nano),
 		"type": "ALARM",
 		"payload": map[string]interface{}{
-			"monitor":  a.Monitor,
+			"monitor":  a.Name,
 			"severity": a.Severity,
 			"msg":      a.Msg,
 		},

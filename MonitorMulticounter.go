@@ -10,12 +10,13 @@ type MonitorMulticounter struct {
 	Monitor
 	OnChange func(map[string]int)
 	size     int
-	list     list.List
+	list     *list.List
 	counters map[string]int
 	mutex    *sync.Mutex
 }
 
 func NewMonitorMulticounter(size int) *MonitorMulticounter {
+
 	return &MonitorMulticounter{
 		size:     size,
 		list:     list.New(),
@@ -28,10 +29,6 @@ func (m *MonitorMulticounter) Increment(tag string) {
 	m.mutex.Lock()
 
 	m.incrementUnsafe(tag)
-
-	if nil != m.OnChange {
-		m.OnChange(m.counters)
-	}
 
 	m.mutex.Unlock()
 	runtime.Gosched()
@@ -48,6 +45,7 @@ func (m *MonitorMulticounter) incrementUnsafe(tag string) {
 		last_tag := last.Value.(string)
 
 		if last_tag == tag {
+			// Counters does not change
 			return
 		}
 
@@ -55,8 +53,17 @@ func (m *MonitorMulticounter) incrementUnsafe(tag string) {
 	}
 
 	m.counters[tag] = m.counters[tag] + 1
+
+	// Change !
+	if nil != m.OnChange {
+		m.OnChange(m.counters)
+	}
 }
 
 func (m *MonitorMulticounter) GetStatus() interface{} {
+	return m.counters
+}
+
+func (m *MonitorMulticounter) GetCounters() map[string]int {
 	return m.counters
 }
