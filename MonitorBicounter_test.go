@@ -1,13 +1,16 @@
 package gohealth
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func Test_MonitorBicounter_GetAlarms(t *testing.T) {
 	m := NewMonitorBicounter(6, 10)
 
 	// send 8 errs
 	for i := 0; i < 8; i++ {
-		m.Err()
+		m.Error()
 	}
 
 	// Check
@@ -37,7 +40,7 @@ func Test_MonitorBicounter_GetStatus(t *testing.T) {
 
 	// send 2 errs
 	for i := 0; i < 2; i++ {
-		m.Err()
+		m.Error()
 	}
 
 	expected := map[string]interface{}{
@@ -47,4 +50,26 @@ func Test_MonitorBicounter_GetStatus(t *testing.T) {
 	}
 
 	DeepEqual(expected, m.GetStatus(), t)
+}
+
+func ExampleSimpleUsage() {
+	max_allowed_bad_events := 3
+	memorize_last_events := 100
+	m := NewMonitorBicounter(max_allowed_bad_events, memorize_last_events)
+
+	m.Ok()
+	m.Ok()
+	m.Error()
+	m.Error()
+	m.Error()
+	m.Ok()
+	m.Ok()
+	m.Error() // this event will generate alarm
+	m.Ok()    // following Ok generate alarms until last 100 errors are under 4
+	m.Ok()
+	m.Ok()
+
+	for _, alarm := range m.GetAlarms() {
+		fmt.Println(alarm.Msg)
+	}
 }

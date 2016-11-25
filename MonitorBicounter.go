@@ -29,7 +29,7 @@ func (m *MonitorBicounter) Ok() {
 	m.MonitorMulticounter.Increment("ok")
 }
 
-func (m *MonitorBicounter) Err() {
+func (m *MonitorBicounter) Error() {
 	m.MonitorMulticounter.Increment("error")
 }
 
