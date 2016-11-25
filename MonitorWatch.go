@@ -1,9 +1,6 @@
 package gohealth
 
-import (
-	"fmt"
-	"time"
-)
+import "time"
 
 type MonitorWatch struct {
 	Monitor // Inherit from standard monitor
@@ -24,10 +21,7 @@ func NewMonitorWatch() *MonitorWatch {
 		run:          false,
 		TickDelay:    1 * time.Second,
 		CautionDelay: 20 * time.Second,
-		Print: func(a *Alarm) {
-			s := fmt.Sprintf("%s '%s': %s", a.Severity, a.Name, a.Msg)
-			fmt.Println(s)
-		},
+		Print:        PrintSmartDigits,
 	}
 }
 
