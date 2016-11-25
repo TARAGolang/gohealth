@@ -1,9 +1,6 @@
 package gohealth
 
-import (
-	"encoding/json"
-	"time"
-)
+import "time"
 
 const (
 	SeverityCritical = "CRITICAL"
@@ -25,32 +22,6 @@ func NewAlarm(msg string) *Alarm {
 		Severity: SeverityCritical,
 		Msg:      msg,
 	}
-}
-
-// Print should print an alarm like this (but in one line):
-// {
-//	"time": "2016-11-11 15:07:07.854Z",
-//	"type": "ALARM",
-//	"payload": {
-//		"monitor": "idle",
-//		"severity": "OK",
-//		"msg": "Last event received at 2016-11-11 15:07:07.854307"
-//     }
-// }
-func (a *Alarm) Print() string {
-	v := map[string]interface{}{
-		"time": a.Time.UTC().Format(time.RFC3339),
-		"type": "ALARM",
-		"payload": map[string]interface{}{
-			"monitor":  a.Name,
-			"severity": a.Severity,
-			"msg":      a.Msg,
-		},
-	}
-
-	j, _ := json.Marshal(v) // NO ERROR VALIDATION :D
-
-	return string(j)
 }
 
 func (a *Alarm) OlderThan(duration time.Duration) bool {
