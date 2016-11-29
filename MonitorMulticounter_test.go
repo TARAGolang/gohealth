@@ -9,7 +9,7 @@ import (
 
 func Test_MonitorMulticounter_Increment(t *testing.T) {
 
-	// Simulation, window size: 3, values: A, B, C
+	// Simulation, window size: 4, values: A, B, C
 	//
 	//                  11111111
 	// #:     012345678901234567

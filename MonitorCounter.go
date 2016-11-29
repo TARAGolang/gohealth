@@ -44,16 +44,6 @@ func (m *MonitorCounter) Increment(i int32) {
 	}
 }
 
-func (m *MonitorCounter) GetAlarms() []*Alarm {
-	r := []*Alarm{}
-
-	if nil != m.alarm {
-		r = append(r, m.alarm)
-	}
-
-	return r
-}
-
 func (m *MonitorCounter) Reset() {
 	m.counter = 0 // TODO: make this atomic
 }
@@ -64,4 +54,14 @@ func (m *MonitorCounter) GetStatus() interface{} {
 		"threshold": m.threshold,
 		"p":         100 * m.counter / m.max,
 	}
+}
+
+func (m *MonitorCounter) GetAlarms() []*Alarm {
+	r := []*Alarm{}
+
+	if nil != m.alarm {
+		r = append(r, m.alarm)
+	}
+
+	return r
 }

@@ -9,7 +9,7 @@ type MonitorBicounter struct {
 	*MonitorMulticounter
 	size      int
 	threshold int
-	alarms    []*Alarm
+	alarm     *Alarm
 }
 
 func NewMonitorBicounter(threshold, size int) *MonitorBicounter {
@@ -17,7 +17,6 @@ func NewMonitorBicounter(threshold, size int) *MonitorBicounter {
 		MonitorMulticounter: NewMonitorMulticounter(size),
 		threshold:           threshold,
 		size:                size,
-		alarms:              []*Alarm{},
 	}
 
 	m.MonitorMulticounter.OnChange = m.onChange
@@ -38,9 +37,9 @@ func (m *MonitorBicounter) onChange(s map[string]int) {
 	e := s["error"]
 	if e > m.threshold {
 		msg := fmt.Sprintf("Limit at %d out of %d", e, m.size)
-		a := NewAlarm(msg)
-
-		m.alarms = append(m.alarms, a)
+		m.alarm = NewAlarm(msg)
+	} else {
+		m.alarm = nil
 	}
 }
 
@@ -56,8 +55,9 @@ func (m *MonitorBicounter) GetStatus() interface{} {
 }
 
 func (m *MonitorBicounter) GetAlarms() []*Alarm {
-	alarms := m.alarms
-	m.alarms = []*Alarm{}
+	if nil == m.alarm {
+		return []*Alarm{}
+	}
 
-	return alarms
+	return []*Alarm{m.alarm}
 }

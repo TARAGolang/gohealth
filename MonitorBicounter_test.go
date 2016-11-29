@@ -15,23 +15,20 @@ func Test_MonitorBicounter_GetAlarms(t *testing.T) {
 
 	// Check
 	alarms := m.GetAlarms()
-	DeepEqual("Limit at 7 out of 10", alarms[0].Msg, t)
-	DeepEqual("Limit at 8 out of 10", alarms[1].Msg, t)
+	DeepEqual("Limit at 8 out of 10", alarms[0].Msg, t)
 
-	// Get alarms should empty alarms
+	// Get alarms should NOT empty alarms
 	alarms = m.GetAlarms()
-	DeepEqual([]*Alarm{}, alarms, t)
+	DeepEqual("Limit at 8 out of 10", alarms[0].Msg, t)
 
 	// send 8 oks
 	for i := 0; i < 8; i++ {
 		m.Ok()
 	}
 
-	// Check 1 alarm
+	// Check alarm is empty
 	alarms = m.GetAlarms()
-	DeepEqual("Limit at 8 out of 10", alarms[0].Msg, t)
-	DeepEqual("Limit at 8 out of 10", alarms[1].Msg, t)
-	DeepEqual("Limit at 7 out of 10", alarms[2].Msg, t)
+	DeepEqual([]*Alarm{}, alarms, t)
 
 }
 
@@ -52,7 +49,7 @@ func Test_MonitorBicounter_GetStatus(t *testing.T) {
 	DeepEqual(expected, m.GetStatus(), t)
 }
 
-func ExampleSimpleUsage() {
+func ExampleMonitorBicounter() {
 	max_allowed_bad_events := 3
 	memorize_last_events := 100
 	m := NewMonitorBicounter(max_allowed_bad_events, memorize_last_events)
@@ -72,4 +69,7 @@ func ExampleSimpleUsage() {
 	for _, alarm := range m.GetAlarms() {
 		fmt.Println(alarm.Msg)
 	}
+
+	// Output:
+	// Limit at 4 out of 100
 }
