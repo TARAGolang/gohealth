@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func Test_MonitorChannel_GetStatus(t *testing.T) {
+func Test_MonitorLifetime_GetStatus(t *testing.T) {
 
 	size := 10
 
@@ -14,7 +14,7 @@ func Test_MonitorChannel_GetStatus(t *testing.T) {
 	threshold := 6
 	lifetime := 100
 
-	m := NewMonitorChannel(size, threshold, lifetime, func() int {
+	m := NewMonitorLifetime(size, threshold, lifetime, func() int {
 		return len(c)
 	})
 

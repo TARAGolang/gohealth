@@ -9,7 +9,7 @@ import (
 /**
  * Binary counter
  */
-type MonitorChannel struct {
+type MonitorLifetime struct {
 	*Monitor
 
 	Interval time.Duration
@@ -27,8 +27,8 @@ type MonitorChannel struct {
 	last_time        time.Time
 }
 
-func NewMonitorChannel(size int, threshold int, lifetime int, callback_usage func() int) *MonitorChannel {
-	m := &MonitorChannel{
+func NewMonitorLifetime(size int, threshold int, lifetime int, callback_usage func() int) *MonitorLifetime {
+	m := &MonitorLifetime{
 		Interval: 1 * time.Second,
 
 		size:           size,
@@ -49,7 +49,7 @@ func NewMonitorChannel(size int, threshold int, lifetime int, callback_usage fun
 	return m
 }
 
-func (m *MonitorChannel) tick() {
+func (m *MonitorLifetime) tick() {
 	// Get channel usage
 	channel_size := m.size
 	channel_use := m.callback_usage()
@@ -94,16 +94,16 @@ func (m *MonitorChannel) tick() {
 	m.updateLastValues()
 }
 
-func (m *MonitorChannel) updateLastValues() {
+func (m *MonitorLifetime) updateLastValues() {
 	m.last_channel_use = m.callback_usage()
 	m.last_time = time.Now()
 }
 
-func (m *MonitorChannel) GetStatus() interface{} {
+func (m *MonitorLifetime) GetStatus() interface{} {
 	return "TODO: implement this"
 }
 
-func (m *MonitorChannel) GetAlarms() []*Alarm {
+func (m *MonitorLifetime) GetAlarms() []*Alarm {
 	if nil == m.alarm {
 		return []*Alarm{}
 	}
