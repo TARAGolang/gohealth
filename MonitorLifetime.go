@@ -42,8 +42,10 @@ func NewMonitorLifetime(size int, threshold int, lifetime int, callback_usage fu
 	m.updateLastValues()
 
 	go func() {
-		m.tick()
-		time.Sleep(m.Interval)
+		for {
+			m.tick()
+			time.Sleep(m.Interval)
+		}
 	}()
 
 	return m
@@ -65,18 +67,26 @@ func (m *MonitorLifetime) tick() {
 	delay_timestamp := time.Now().UnixNano() - m.last_time.UnixNano()
 	rate := float32(delay_use) / (float32(delay_timestamp) / 1000000000)
 	alarm_time := false
-	life := "eternity"
+	life := "eternity 🚂"
+
 	if delay_use > 0 {
 		seconds_left := int64(float32(channel_free) / (rate))
 		duration := time.Duration(seconds_left * 1000000000)
-		life = fmt.Sprintf("%v", duration)
+		life = fmt.Sprintf("⏰ %v", duration)
 
 		alarm_time = seconds_left < m.lifetime // ALARM
 	}
 
+	if channel_use == channel_size {
+		life = "too late 💀"
+	} else if channel_use == 0 {
+		life = "synchronized 😴"
+	}
+
 	if alarm_time || alarm_threshold {
+
 		msg := "Running out of buffer (" + strconv.Itoa(channel_use_p) +
-			"%) time to solve: " + life
+			"%) time to full: " + life
 		m.alarm = NewAlarm(msg)
 	} else {
 		m.alarm = nil
@@ -100,7 +110,7 @@ func (m *MonitorLifetime) updateLastValues() {
 }
 
 func (m *MonitorLifetime) GetStatus() interface{} {
-	return "TODO: implement this"
+	return m.status
 }
 
 func (m *MonitorLifetime) GetAlarms() []*Alarm {

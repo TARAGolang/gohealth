@@ -22,7 +22,7 @@ func Test_MonitorLifetime_GetStatus(t *testing.T) {
 	m.tick()
 	expected_status := map[string]interface{}{
 		"channel_free_p": 100,
-		"life":           "eternity",
+		"life":           "synchronized 😴",
 		"channel_size":   10,
 		"channel_use":    0,
 		"channel_use_p":  0,

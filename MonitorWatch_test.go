@@ -1,7 +1,6 @@
 package gohealth
 
 import (
-	"reflect"
 	"testing"
 	"time"
 )
@@ -21,6 +20,9 @@ func Test_MonitorWatch_GetStatus(t *testing.T) {
 	counter1.Increment(3)
 	counter2.Increment(50)
 
+	// Simulate time passed
+	w.tick()
+
 	// Check
 	status := w.GetStatus()
 	expected := map[string]interface{}{
@@ -35,10 +37,7 @@ func Test_MonitorWatch_GetStatus(t *testing.T) {
 			"p":         int32(50),
 		},
 	}
-
-	if !reflect.DeepEqual(expected, status) {
-		t.Error("Expected status is all monitors status")
-	}
+	DeepEqual(expected, status, t)
 
 }
 

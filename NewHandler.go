@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func NewHandler(m *MonitorWatch) func(w http.ResponseWriter, r *http.Request) {
+func NewHandler(m Monitorer) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		alarms := m.GetAlarms()

@@ -1,6 +1,9 @@
 package gohealth
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 type MonitorWatch struct {
 	Monitor // Inherit from standard monitor
@@ -11,13 +14,16 @@ type MonitorWatch struct {
 
 	alarms   map[string]*Alarm
 	monitors map[string]*Monitorer
-	run      bool
+	status   map[string]interface{}
+
+	run bool
 }
 
 func NewMonitorWatch() *MonitorWatch {
 	return &MonitorWatch{
 		alarms:       map[string]*Alarm{},
 		monitors:     map[string]*Monitorer{},
+		status:       map[string]interface{}{},
 		run:          false,
 		TickDelay:    1 * time.Second,
 		CautionDelay: 20 * time.Second,
@@ -26,6 +32,11 @@ func NewMonitorWatch() *MonitorWatch {
 }
 
 func (m *MonitorWatch) Start() {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("Recovered in", r)
+		}
+	}()
 
 	if m.run {
 		return
@@ -45,6 +56,11 @@ func (m *MonitorWatch) Stop() {
 }
 
 func (m *MonitorWatch) tick() {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("Recovered in", r)
+		}
+	}()
 
 	// Update alarm
 	for name, monitor := range m.monitors {
@@ -66,6 +82,11 @@ func (m *MonitorWatch) tick() {
 		}
 	}
 
+	// Update status
+	for k, v := range m.monitors {
+		m.status[k] = (*v).GetStatus()
+	}
+
 }
 
 func (m *MonitorWatch) Register(name string, r Monitorer) {
@@ -73,6 +94,12 @@ func (m *MonitorWatch) Register(name string, r Monitorer) {
 }
 
 func (m *MonitorWatch) GetAlarms() []*Alarm {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("Recovered in", r)
+		}
+	}()
+
 	r := []*Alarm{}
 	for _, a := range m.alarms {
 		r = append(r, a)
@@ -82,11 +109,11 @@ func (m *MonitorWatch) GetAlarms() []*Alarm {
 }
 
 func (m *MonitorWatch) GetStatus() interface{} {
-	r := map[string]interface{}{}
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("Recovered in", r)
+		}
+	}()
 
-	for k, v := range m.monitors {
-		r[k] = (*v).GetStatus()
-	}
-
-	return r
+	return m.status
 }
