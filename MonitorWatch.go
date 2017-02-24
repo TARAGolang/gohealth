@@ -12,16 +12,28 @@ type MonitorWatch struct {
 	CautionDelay time.Duration
 	Print        func(*Alarm) // Print callback
 
-	alarms   map[string]*Alarm
+	alarms   map[string]*lastAlarm
 	monitors map[string]*Monitorer
 	status   map[string]interface{}
 
 	run bool
 }
 
+type lastAlarm struct {
+	// Time is when the alarm was collected
+	Time time.Time
+
+	// Alarm is a pointer to the alarm itself
+	Alarm *Alarm
+}
+
+func (a *lastAlarm) OlderThan(duration time.Duration) bool {
+	return time.Now().Sub(a.Time) > duration
+}
+
 func NewMonitorWatch() *MonitorWatch {
 	return &MonitorWatch{
-		alarms:       map[string]*Alarm{},
+		alarms:       map[string]*lastAlarm{},
 		monitors:     map[string]*Monitorer{},
 		status:       map[string]interface{}{},
 		run:          false,
@@ -68,16 +80,16 @@ func (m *MonitorWatch) tick() {
 			if "" == a.Name {
 				a.Name = name
 			}
-			m.alarms[name] = a
 			m.Print(a)
+			m.alarms[name] = &lastAlarm{time.Now(), a}
 		}
 	}
 
 	// Clean alarms
-	for k, a := range m.alarms {
-		if a.OlderThan(m.CautionDelay) {
-			a.Severity = SeverityOK
-			m.Print(a)
+	for k, l := range m.alarms {
+		if l.OlderThan(m.CautionDelay) {
+			l.Alarm.Severity = SeverityOK
+			m.Print(l.Alarm)
 			delete(m.alarms, k)
 		}
 	}
@@ -101,8 +113,8 @@ func (m *MonitorWatch) GetAlarms() []*Alarm {
 	}()
 
 	r := []*Alarm{}
-	for _, a := range m.alarms {
-		r = append(r, a)
+	for _, l := range m.alarms {
+		r = append(r, l.Alarm)
 	}
 
 	return r

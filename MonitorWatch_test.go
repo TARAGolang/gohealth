@@ -74,9 +74,11 @@ func Test_MonitorWatch_CleanAlarmsAfterTick(t *testing.T) {
 
 	w := NewMonitorWatch()
 
+	now := time.Now()
+
 	// Add alarms
-	w.alarms["new"] = NewAlarm("new alarm")
-	w.alarms["old"] = NewAlarm("old alarm")
+	w.alarms["new"] = &lastAlarm{now, NewAlarm("new alarm")}
+	w.alarms["old"] = &lastAlarm{now, NewAlarm("old alarm")}
 
 	// Fake old alarm
 	w.alarms["old"].Time = w.alarms["old"].Time.Add(time.Duration(-30 * time.Second))
@@ -91,7 +93,7 @@ func Test_MonitorWatch_CleanAlarmsAfterTick(t *testing.T) {
 	w.tick()
 
 	// Check new alarm is still in alarms
-	if "new alarm" != w.alarms["new"].Msg {
+	if "new alarm" != w.alarms["new"].Alarm.Msg {
 		t.Error("New alarm should be inside the monitor watch")
 	}
 
@@ -105,4 +107,39 @@ func Test_MonitorWatch_CleanAlarmsAfterTick(t *testing.T) {
 		t.Error("Old alarm should have been restored")
 	}
 
+}
+
+func Test_MonitorWatch_Issue1(t *testing.T) {
+
+	p := &MonitorPrintTest{}
+
+	w := NewMonitorWatch()
+	w.TickDelay = 100 * time.Millisecond
+	w.CautionDelay = 10 * time.Millisecond
+	w.Print = p.Print
+
+	s := NewMonitorSwitch("my switch")
+	s.Error()
+
+	w.Register("monitor my switch", s)
+	w.Start()
+
+	time.Sleep(1 * time.Second)
+
+	last := len(p.Alarms) - 1
+
+	if "monitor my switch: OK" == p.Alarms[last] {
+		t.Error("Alarm status should not be OK after `CautionDelay` time")
+	}
+}
+
+// MonitorPrintTest is a helper object that provides a mocked `Print` function
+// and stores all print messages.
+type MonitorPrintTest struct {
+	Alarms []string
+}
+
+func (m *MonitorPrintTest) Print(a *Alarm) {
+	s := a.Name + ": " + a.Severity
+	m.Alarms = append(m.Alarms, s)
 }

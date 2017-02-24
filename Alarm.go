@@ -23,7 +23,3 @@ func NewAlarm(msg string) *Alarm {
 		Msg:      msg,
 	}
 }
-
-func (a *Alarm) OlderThan(duration time.Duration) bool {
-	return time.Now().Sub(a.Time) > duration
-}
